@@ -1,13 +1,17 @@
 using Duende.IdentityServer.Services;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
+using ReactASP;
 using ReactASP.Data;
 using ReactASP.Extensions;
 using ReactASP.Models;
 using ReactASP.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,19 +27,38 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
-    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
+    {
+        options.IdentityResources["openid"].UserClaims.Add("role");
+        options.ApiResources.Single().UserClaims.Add("role");
+    });
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("RequireAdministratorRole",
+//        policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+//});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.ClaimsIdentity.RoleClaimType = JwtClaimTypes.Role;
+    options.ClaimsIdentity.RoleClaimType = ClaimTypes.Role;
 });
 
-builder.Services.AddTransient<IProfileService, ProfileService>();
+builder.Services.Configure<JwtBearerOptions>(options =>
+{
+    var validator = options.SecurityTokenValidators.OfType<JwtSecurityTokenHandler>().SingleOrDefault();
+
+    // Turn off Microsoft's JWT handler that maps claim types to .NET's long claim type names
+    validator.InboundClaimTypeMap = new Dictionary<string, string>();
+    validator.OutboundClaimTypeMap = new Dictionary<string, string>();
+
+});
+
+//builder.Services.AddTransient<IProfileService, ProfileService>();
+builder.Services.AddTransient<IClaimsTransformation, AddSubTransformation>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

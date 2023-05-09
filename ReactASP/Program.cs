@@ -27,28 +27,18 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
-    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
-    {
-        //options.IdentityResources["openid"].UserClaims.Add("role");
-        //options.ApiResources.Single().UserClaims.Add("role");
-    });
+    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdministratorRole",
+    options.AddPolicy("RequireEmployeeRole",
         policy => policy.RequireClaim(ClaimTypes.Role, "Employee"));
 });
 
-//builder.Services.Configure<IdentityOptions>(options =>
-//{
-//    options.ClaimsIdentity.RoleClaimType = ClaimTypes.Role;
-//});
-
 builder.Services.AddTransient<IProfileService, ProfileService>();
-//builder.Services.AddTransient<IClaimsTransformation, AddSubTransformation>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

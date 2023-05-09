@@ -6,8 +6,7 @@ using ReactASP.Models;
 
 namespace ReactASP.Controllers
 {
-    //[Authorize(Roles = "Employee")]
-    [Authorize(Policy = "RequireAdministratorRole")]
+    [Authorize(Policy = "RequireEmployeeRole")]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
@@ -29,11 +28,6 @@ namespace ReactASP.Controllers
         [HttpGet]
         public async Task<IEnumerable<WeatherForecast>> Get()
         {
-            var user = await userManager.GetUserAsync(User);
-            if (User.IsInRole("Employee"))
-            {
-                var x = 0;
-            }
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),

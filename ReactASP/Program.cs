@@ -29,36 +29,26 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
     {
-        options.IdentityResources["openid"].UserClaims.Add("role");
-        options.ApiResources.Single().UserClaims.Add("role");
+        //options.IdentityResources["openid"].UserClaims.Add("role");
+        //options.ApiResources.Single().UserClaims.Add("role");
     });
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
-//builder.Services.AddAuthorization(options =>
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdministratorRole",
+        policy => policy.RequireClaim(ClaimTypes.Role, "Employee"));
+});
+
+//builder.Services.Configure<IdentityOptions>(options =>
 //{
-//    options.AddPolicy("RequireAdministratorRole",
-//        policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+//    options.ClaimsIdentity.RoleClaimType = ClaimTypes.Role;
 //});
 
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.ClaimsIdentity.RoleClaimType = ClaimTypes.Role;
-});
-
-builder.Services.Configure<JwtBearerOptions>(options =>
-{
-    var validator = options.SecurityTokenValidators.OfType<JwtSecurityTokenHandler>().SingleOrDefault();
-
-    // Turn off Microsoft's JWT handler that maps claim types to .NET's long claim type names
-    validator.InboundClaimTypeMap = new Dictionary<string, string>();
-    validator.OutboundClaimTypeMap = new Dictionary<string, string>();
-
-});
-
-//builder.Services.AddTransient<IProfileService, ProfileService>();
-builder.Services.AddTransient<IClaimsTransformation, AddSubTransformation>();
+builder.Services.AddTransient<IProfileService, ProfileService>();
+//builder.Services.AddTransient<IClaimsTransformation, AddSubTransformation>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

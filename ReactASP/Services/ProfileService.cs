@@ -24,12 +24,6 @@ namespace ReactASP.Services
 
             var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
 
-            //IList<Claim> roleClaims = new List<Claim>();
-            //foreach (string role in roles)
-            //{
-            //    roleClaims.Add(new Claim(ClaimTypes.Role, role));
-            //}
-
             context.IssuedClaims.AddRange(roleClaims);
         }
 

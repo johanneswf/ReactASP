@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ReactASP.Models;
 
 namespace ReactASP.Controllers
 {
     //[Authorize(Roles = "Employee")]
+    [Authorize(Policy = "RequireAdministratorRole")]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
